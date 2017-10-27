@@ -4,7 +4,7 @@ import de.ovgu.dke.teaching.ml.tictactoe.api.IllegalMoveException;
 import de.ovgu.dke.teaching.ml.tictactoe.game.Move;
 
 /**
- * @author Hans-Martin Wulfmeyer, 207492
+ * @author Hans-Martin Wulfmeyer, Dimtrii Zyrianov
  */
 public class JoshuaWOPR implements IPlayer {
 	
