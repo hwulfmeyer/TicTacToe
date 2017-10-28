@@ -5,6 +5,8 @@ import de.ovgu.dke.teaching.ml.tictactoe.game.Move;
 
 /**
  * 125(5x5x5) Input neurons; 62 hidden Neurons; 1 Output Neuron
+ * L1 -> L2 => 7750 weights
+ * 
  *
  * @author Hans-Martin Wulfmeyer
  */
