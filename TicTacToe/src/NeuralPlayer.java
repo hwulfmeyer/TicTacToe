@@ -4,7 +4,7 @@ import de.ovgu.dke.teaching.ml.tictactoe.api.IllegalMoveException;
 import de.ovgu.dke.teaching.ml.tictactoe.game.Move;
 
 /**
- * 125*2 Input neurons; 50 hidden Neurons
+ * 125(5x5x5) Input neurons; 62 hidden Neurons; 1 Output Neuron
  *
  * @author Hans-Martin Wulfmeyer
  */
