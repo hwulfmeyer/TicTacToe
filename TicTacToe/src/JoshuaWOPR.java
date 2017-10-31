@@ -149,7 +149,7 @@ public class JoshuaWOPR implements IPlayer {
 			}
 		}
 
-		// check for diagonals in all layers
+		// check for diagonals in layers
 		for (int z = 0; z < board.getSize(); z++) {
 			int diagCounterEnemy = 0;
 			int diagCounterMine = 0;
@@ -175,103 +175,112 @@ public class JoshuaWOPR implements IPlayer {
 			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);
 		}
 
-		// TODO: check for diagonals spanning through layers from one corner to
-		// opposite(4 probable diagonals)
+		// diagonal from lower left corner in L0 to upper right corner in L4
+		int cornerdiagCounterEnemy = 0;
+		int cornerdiagCounterMine = 0;
 		for (int x = 0, y = 0, z = 0; x < board.getSize() && y < board.getSize()
 				&& z < board.getSize(); x++, y++, z++) {
-			int cornerdiagCounterEnemy = 0;
-			int cornerdiagCounterMine = 0;
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
 			} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
 				cornerdiagCounterEnemy++;
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-
 		}
+		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
+		
+		// diagonal from lower right corner in L0 to upper left corner in L4
+		cornerdiagCounterEnemy = 0;
+		cornerdiagCounterMine = 0;
 		for (int x = board.getSize() - 1, y = 0, z = 0; x > 0 && y < board.getSize()
 				&& z < board.getSize(); x--, y++, z++) {
-			int cornerdiagCounterEnemy = 0;
-			int cornerdiagCounterMine = 0;
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
 			} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
 				cornerdiagCounterEnemy++;
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-
 		}
+		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
+		
+		// diagonal from upper left corner in L0 to lower right corner in L4
+		cornerdiagCounterEnemy = 0;
+		cornerdiagCounterMine = 0;
 		for (int x = 0, y = board.getSize() - 1, z = 0; x < board.getSize() && y > 0
 				&& z < board.getSize(); x++, y--, z++) {
-			int cornerdiagCounterEnemy = 0;
-			int cornerdiagCounterMine = 0;
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
 			} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
 				cornerdiagCounterEnemy++;
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
 		}
+		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
+		
+		// diagonal from upper right corner in L0 to lower left corner in L4
+		cornerdiagCounterEnemy = 0;
+		cornerdiagCounterMine = 0;
 		for (int x = board.getSize() - 1, y = board.getSize() - 1, z = 0; x > 0 && y > 0
 				&& z < board.getSize(); x--, y--, z++) {
-			int cornerdiagCounterEnemy = 0;
-			int cornerdiagCounterMine = 0;
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
 			} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
 				cornerdiagCounterEnemy++;
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-
 		}
-		// this 2 loops for checking 20 diagonals spanning but 2D dimensional
+		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
+		
+		//check for diagonals spanning through layers
 		for (int x = 0; x < board.getSize() - 1; x++) {
-			int cornerdiagCounterEnemy = 0;
-			int cornerdiagCounterMine = 0;
+			int diagCounterEnemy = 0;
+			int diagCounterMine = 0;
+			
+			// diagonals from lower row in L0 to upper row in L4 
 			for (int y = 0, z = 0; y < board.getSize() - 1 && z < board.getSize() - 1; y++, z++) {
-
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
-					cornerdiagCounterMine++;
+					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
-					cornerdiagCounterEnemy++;
+					diagCounterEnemy++;
 				}
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-			cornerdiagCounterEnemy = 0;
-			cornerdiagCounterMine = 0;
+			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);		
+			diagCounterEnemy = 0;
+			diagCounterMine = 0;
+			
+			// diagonals from upper row in L0 to lower row in L4 
 			for (int y = board.getSize() - 1, z = 0; y > 0 && z < board.getSize() - 1; y--, z++) {
-
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
-					cornerdiagCounterMine++;
+					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
-					cornerdiagCounterEnemy++;
+					diagCounterEnemy++;
 				}
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
+			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);
 		}
+		
+		//check for diagonals spanning through layers
 		for (int y = 0; y < board.getSize() - 1; y++) {
-			int cornerdiagCounterEnemy = 0;
-			int cornerdiagCounterMine = 0;
+			int diagCounterEnemy = 0;
+			int diagCounterMine = 0;
+			
+			//diagonals from most left column in L0 to most right column in L4
 			for (int x = 0, z = 0; x < board.getSize() - 1 && z < board.getSize() - 1; x++, z++) {
-
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
-					cornerdiagCounterMine++;
+					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
-					cornerdiagCounterEnemy++;
+					diagCounterEnemy++;
 				}
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-			cornerdiagCounterEnemy = 0;
-			cornerdiagCounterMine = 0;
+			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);		
+			diagCounterEnemy = 0;
+			diagCounterMine = 0;
+			
+			//diagonals from most right column in L0 to most left column in L4
 			for (int x = board.getSize() - 1, z = 0; x > 0 && z < board.getSize() - 1; x--, z++) {
-
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
-					cornerdiagCounterMine++;
+					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
-					cornerdiagCounterEnemy++;
+					diagCounterEnemy++;
 				}
 			}
-			boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
+			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);
 		}
 
 		return boardFeatures;
