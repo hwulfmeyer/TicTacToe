@@ -14,19 +14,16 @@ public class JoshuaWOPR implements IPlayer {
 	private float PrevBoardValue;
 	private int[] PrevBoardFeatures;
 
-	// init the variables we need
+	// initialize the variables we need
 	public JoshuaWOPR() {
 		PrevBoardFeatures = new int[NUM_FEATURES];
 		PrevBoardValue = 0f;
 		Weights = new float[NUM_FEATURES];
-		// init weights as 1 beside weight_0
+		// init weights as 1 beside weight_0 which is 0
 		for (int i = 1; i < NUM_FEATURES; i++) {
-			/*
-			 * if(i>5) Weights[i] = -1f; else Weights[i] = 1f;
-			 */
 			Weights[i] = 1f;
 		}
-		// Weights = new float[] {0,10,25,50,75,100,-10,-25,-50,-75,-100};
+
 	}
 
 	public String getName() {
@@ -41,16 +38,6 @@ public class JoshuaWOPR implements IPlayer {
 			updateWeights(PrevBoardValue, curBoardValue, PrevBoardFeatures);
 		PrevBoardValue = curBoardValue;
 		PrevBoardFeatures = getBoardFeatures(board);
-
-		/*
-		 * System.out.print("F: "); for (int i = 0; i < PrevBoardFeatures.length; i++) {
-		 * System.out.print("F"+i+"="+PrevBoardFeatures[i] + " | "); }
-		 * System.out.println();
-		 */
-		/*
-		 * System.out.print("WEIGHTS: "); for (int i = 0; i < Weights.length; i++) {
-		 * System.out.print(Weights[i] + " | "); } System.out.println();
-		 */
 
 		// generate all possible moves from board and choose the one with the best value
 		float bestBoardValue = 0;
@@ -98,17 +85,19 @@ public class JoshuaWOPR implements IPlayer {
 		int[] boardFeatures = new int[NUM_FEATURES];
 		boardFeatures[0] = 1;
 		/*
-		 * x0 = 1 X = my player, O = enemy player x1 = rows/columns/aisles/diagonals
-		 * containing at least 1 X and 0 O x2 = rows/columns/aisles/diagonals containing
-		 * at least 2 X and 0 O x3 = rows/columns/aisles/diagonals containing at least 3
-		 * X and 0 O x4 = rows/columns/aisles/diagonals containing at least 4 X and 0 O
+		 * x0 = 1
+		 * X = my player, O = enemy player
+		 * x1 = rows/columns/aisles/diagonals containing at least 1 X and 0 O
+		 * x2 = rows/columns/aisles/diagonals containing at least 2 X and 0 O
+		 * x3 = rows/columns/aisles/diagonals containing at least 3 X and 0 O
+		 * x4 = rows/columns/aisles/diagonals containing at least 4 X and 0 O
 		 * x5 = rows/columns/aisles/diagonals containing at least 5 X and 0 O
 		 * 
-		 * x6 = rows/columns/aisles/diagonals containing at least 1 O and 0 X x7 =
-		 * rows/columns/aisles/diagonals containing at least 2 O and 0 X x8 =
-		 * rows/columns/aisles/diagonals containing at least 3 O and 0 X x9 =
-		 * rows/columns/aisles/diagonals containing at least 4 O and 0 X x10 =
-		 * rows/columns/aisles/diagonals containing at least 5 O and 0 X
+		 * x6 = rows/columns/aisles/diagonals containing at least 1 O and 0 X
+		 * x7 = rows/columns/aisles/diagonals containing at least 2 O and 0 X
+		 * x8 = rows/columns/aisles/diagonals containing at least 3 O and 0 X
+		 * x9 = rows/columns/aisles/diagonals containing at least 4 O and 0 X
+		 * x10 = rows/columns/aisles/diagonals containing at least 5 O and 0 X
 		 */
 
 		// check rows/columns/aisles
