@@ -10,7 +10,7 @@ public class JoshuaWOPR implements IPlayer {
 
 	private static final float LEARN_RATE = 0.01f;
 	private static final int NUM_FEATURES = 11;
-	private float[] Weights;
+	protected float[] Weights;
 	private float PrevBoardValue;
 	private int[] PrevBoardFeatures;
 
@@ -19,11 +19,6 @@ public class JoshuaWOPR implements IPlayer {
 		PrevBoardFeatures = new int[NUM_FEATURES];
 		PrevBoardValue = 0f;
 		Weights = new float[NUM_FEATURES];
-		// init weights as 1 beside weight_0 which is 0
-		for (int i = 1; i < NUM_FEATURES; i++) {
-			Weights[i] = 1f;
-		}
-
 	}
 
 	public String getName() {
@@ -85,19 +80,17 @@ public class JoshuaWOPR implements IPlayer {
 		int[] boardFeatures = new int[NUM_FEATURES];
 		boardFeatures[0] = 1;
 		/*
-		 * x0 = 1
-		 * X = my player, O = enemy player
-		 * x1 = rows/columns/aisles/diagonals containing at least 1 X and 0 O
-		 * x2 = rows/columns/aisles/diagonals containing at least 2 X and 0 O
-		 * x3 = rows/columns/aisles/diagonals containing at least 3 X and 0 O
-		 * x4 = rows/columns/aisles/diagonals containing at least 4 X and 0 O
+		 * x0 = 1 X = my player, O = enemy player x1 = rows/columns/aisles/diagonals
+		 * containing at least 1 X and 0 O x2 = rows/columns/aisles/diagonals containing
+		 * at least 2 X and 0 O x3 = rows/columns/aisles/diagonals containing at least 3
+		 * X and 0 O x4 = rows/columns/aisles/diagonals containing at least 4 X and 0 O
 		 * x5 = rows/columns/aisles/diagonals containing at least 5 X and 0 O
 		 * 
-		 * x6 = rows/columns/aisles/diagonals containing at least 1 O and 0 X
-		 * x7 = rows/columns/aisles/diagonals containing at least 2 O and 0 X
-		 * x8 = rows/columns/aisles/diagonals containing at least 3 O and 0 X
-		 * x9 = rows/columns/aisles/diagonals containing at least 4 O and 0 X
-		 * x10 = rows/columns/aisles/diagonals containing at least 5 O and 0 X
+		 * x6 = rows/columns/aisles/diagonals containing at least 1 O and 0 X x7 =
+		 * rows/columns/aisles/diagonals containing at least 2 O and 0 X x8 =
+		 * rows/columns/aisles/diagonals containing at least 3 O and 0 X x9 =
+		 * rows/columns/aisles/diagonals containing at least 4 O and 0 X x10 =
+		 * rows/columns/aisles/diagonals containing at least 5 O and 0 X
 		 */
 
 		// check rows/columns/aisles
@@ -176,11 +169,11 @@ public class JoshuaWOPR implements IPlayer {
 			}
 		}
 		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-		
+
 		// diagonal from lower right corner in L0 to upper left corner in L4
 		cornerdiagCounterEnemy = 0;
 		cornerdiagCounterMine = 0;
-		for (int x = board.getSize() - 1, y = 0, z = 0; x > 0 && y < board.getSize()
+		for (int x = board.getSize() - 1, y = 0, z = 0; x >= 0 && y < board.getSize()
 				&& z < board.getSize(); x--, y++, z++) {
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
@@ -189,11 +182,11 @@ public class JoshuaWOPR implements IPlayer {
 			}
 		}
 		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-		
+
 		// diagonal from upper left corner in L0 to lower right corner in L4
 		cornerdiagCounterEnemy = 0;
 		cornerdiagCounterMine = 0;
-		for (int x = 0, y = board.getSize() - 1, z = 0; x < board.getSize() && y > 0
+		for (int x = 0, y = board.getSize() - 1, z = 0; x < board.getSize() && y >= 0
 				&& z < board.getSize(); x++, y--, z++) {
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
@@ -202,11 +195,11 @@ public class JoshuaWOPR implements IPlayer {
 			}
 		}
 		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-		
+
 		// diagonal from upper right corner in L0 to lower left corner in L4
 		cornerdiagCounterEnemy = 0;
 		cornerdiagCounterMine = 0;
-		for (int x = board.getSize() - 1, y = board.getSize() - 1, z = 0; x > 0 && y > 0
+		for (int x = board.getSize() - 1, y = board.getSize() - 1, z = 0; x >= 0 && y >= 0
 				&& z < board.getSize(); x--, y--, z++) {
 			if (board.getFieldValue(new int[] { x, y, z }) == this) {
 				cornerdiagCounterMine++;
@@ -215,26 +208,26 @@ public class JoshuaWOPR implements IPlayer {
 			}
 		}
 		boardFeatures = addToFeatures(boardFeatures, cornerdiagCounterMine, cornerdiagCounterEnemy);
-		
-		//check for diagonals spanning through layers
-		for (int x = 0; x < board.getSize() - 1; x++) {
+
+		// check for diagonals spanning through layers
+		for (int x = 0; x < board.getSize(); x++) {
 			int diagCounterEnemy = 0;
 			int diagCounterMine = 0;
-			
-			// diagonals from lower row in L0 to upper row in L4 
-			for (int y = 0, z = 0; y < board.getSize() - 1 && z < board.getSize() - 1; y++, z++) {
+
+			// diagonals from lower row in L0 to upper row in L4
+			for (int y = 0, z = 0; y < board.getSize() && z < board.getSize(); y++, z++) {
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
 					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
 					diagCounterEnemy++;
 				}
 			}
-			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);		
+			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);
 			diagCounterEnemy = 0;
 			diagCounterMine = 0;
-			
-			// diagonals from upper row in L0 to lower row in L4 
-			for (int y = board.getSize() - 1, z = 0; y > 0 && z < board.getSize() - 1; y--, z++) {
+
+			// diagonals from upper row in L0 to lower row in L4
+			for (int y = board.getSize() - 1, z = 0; y >= 0 && z < board.getSize(); y--, z++) {
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
 					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
@@ -243,26 +236,26 @@ public class JoshuaWOPR implements IPlayer {
 			}
 			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);
 		}
-		
-		//check for diagonals spanning through layers
-		for (int y = 0; y < board.getSize() - 1; y++) {
+
+		// check for diagonals spanning through layers
+		for (int y = 0; y < board.getSize(); y++) {
 			int diagCounterEnemy = 0;
 			int diagCounterMine = 0;
-			
-			//diagonals from most left column in L0 to most right column in L4
-			for (int x = 0, z = 0; x < board.getSize() - 1 && z < board.getSize() - 1; x++, z++) {
+
+			// diagonals from most left column in L0 to most right column in L4
+			for (int x = 0, z = 0; x < board.getSize() && z < board.getSize(); x++, z++) {
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
 					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
 					diagCounterEnemy++;
 				}
 			}
-			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);		
+			boardFeatures = addToFeatures(boardFeatures, diagCounterMine, diagCounterEnemy);
 			diagCounterEnemy = 0;
 			diagCounterMine = 0;
-			
-			//diagonals from most right column in L0 to most left column in L4
-			for (int x = board.getSize() - 1, z = 0; x > 0 && z < board.getSize() - 1; x--, z++) {
+
+			// diagonals from most right column in L0 to most left column in L4
+			for (int x = board.getSize() - 1, z = 0; x >= 0 && z < board.getSize(); x--, z++) {
 				if (board.getFieldValue(new int[] { x, y, z }) == this) {
 					diagCounterMine++;
 				} else if (board.getFieldValue(new int[] { x, y, z }) != null) {
@@ -289,8 +282,8 @@ public class JoshuaWOPR implements IPlayer {
 				features[counterMine]++;
 				counterMine--;
 			}
-		}
-		// features for enemy
+		} 
+		// features for enemy else if
 		else if (counterMine == 0 && counterEnemy != 0) {
 			while (counterEnemy > 0) {
 				features[counterEnemy + 5]++;
@@ -321,10 +314,25 @@ public class JoshuaWOPR implements IPlayer {
 			// loss
 			updateWeights(getBoardValue(board), -100, getBoardFeatures(board));
 		}
+
+		System.out.print("W = { ");
 		for (int i = 0; i < Weights.length; i++) {
-			System.out.print("W" + i + "=" + Weights[i] + " | ");
+			if (i + 1 == Weights.length)
+				System.out.print(Weights[i] + " }");
+			else
+				System.out.print(Weights[i] + ", ");
+		}
+		int[] features = getBoardFeatures(board);
+		System.out.println();
+		System.out.print("F = { ");
+		for (int i = 0; i < features.length; i++) {
+			if (i + 1 == features.length)
+				System.out.print(features[i] + " }");
+			else
+				System.out.print(features[i] + ", ");
 		}
 		System.out.println();
+
 		/*
 		 * PrevBoardFeatures = getBoardFeatures(board); for (int i = 0; i <
 		 * PrevBoardFeatures.length; i++) {
