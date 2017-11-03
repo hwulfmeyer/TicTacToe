@@ -1,24 +1,47 @@
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IBoard;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IPlayer;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IllegalMoveException;
 import de.ovgu.dke.teaching.ml.tictactoe.game.Move;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 /**
  * @author Hans-Martin Wulfmeyer, Dimtrii Zyrianov
  */
 public class JoshuaWOPR implements IPlayer {
 
-	private static final float LEARN_RATE = 0.01f;
+	private static final float LEARN_RATE = 0.0000001f;
 	private static final int NUM_FEATURES = 11;
 	protected float[] Weights;
 	private float PrevBoardValue;
 	private int[] PrevBoardFeatures;
+	File MyFileWeights;
+	File MyFileWinLoose;
 
 	// initialize the variables we need
 	public JoshuaWOPR() {
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		MyFileWeights = new File("C://ttt/" + timeStamp + "_weights.txt");
+		MyFileWinLoose = new File("C://ttt/" + timeStamp + "_winloose.txt");
+
+		try {
+			MyFileWeights.createNewFile();
+			MyFileWinLoose.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		PrevBoardFeatures = new int[NUM_FEATURES];
 		PrevBoardValue = 0f;
 		Weights = new float[NUM_FEATURES];
+		Weights = new float[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	}
 
 	public String getName() {
@@ -35,48 +58,54 @@ public class JoshuaWOPR implements IPlayer {
 		PrevBoardFeatures = getBoardFeatures(board);
 
 		// generate all possible moves from board and choose the one with the best value
+		// if there is more than one move with the same value choose randomly
 		float bestBoardValue = 0;
-		int[] bestMove = null;
+		List<int[]> bestMovesList = new ArrayList<int[]>();
 		for (int x = 0; x < board.getSize(); x++) {
 			for (int y = 0; y < board.getSize(); y++) {
 				for (int z = 0; z < board.getSize(); z++) {
 					IBoard boardCopy = board.clone();
 					// try move out, if move is illegal do nothing and go on
-					boolean isLegalMove = true;
 					try {
 						boardCopy.makeMove(new Move(this, new int[] { x, y, z }));
-					} catch (IllegalMoveException e) {
-						isLegalMove = false;
-					}
-					if (isLegalMove) {
 						// get value from our learned function how good the 'move'(the board state after
 						// the move) is
 						float boardCopyValue = getBoardValue(boardCopy);
-						// we could ask here if the move gives us a win and do it but we want to train
-						// it instead; board.isFinalState()
-						if (bestMove == null || boardCopyValue >= bestBoardValue) {
+						if (boardCopyValue > bestBoardValue || bestMovesList.isEmpty()) {
 							bestBoardValue = boardCopyValue;
-							bestMove = new int[] { x, y, z };
+							bestMovesList.clear();
+							bestMovesList.add(new int[] { x, y, z });
+						} else if (boardCopyValue == bestBoardValue) {
+							bestMovesList.add(new int[] { x, y, z });
 						}
+
+					} catch (IllegalMoveException e) {
+						// illegal move catching
 					}
 				}
 			}
 		}
-		return bestMove;
+		if (bestMovesList.size() == 1) {
+			// could call this random too, I don't do it for performance reasons
+			return bestMovesList.get(0);
+		} else {
+			// random for the case that the bestMovesListe is larger than 1 element
+			return bestMovesList.get((int) (Math.random() * bestMovesList.size()));
+		}
 	}
 
 	// calculate the value for 'board' from learned function
-	public float getBoardValue(IBoard board) {
+	protected float getBoardValue(IBoard board) {
 		int[] features = getBoardFeatures(board);
 		float value = 0.0f;
 		for (int i = 0; i < NUM_FEATURES; i++) {
 			value += Weights[i] * features[i];
 		}
-		return value > 100 ? 100 : value < -100 ? -100 : value;
+		return value > 200 ? 200 : value < -200 ? -200 : value;
 	}
 
 	// calculate the values for our board features
-	private int[] getBoardFeatures(IBoard board) {
+	protected int[] getBoardFeatures(IBoard board) {
 		int[] boardFeatures = new int[NUM_FEATURES];
 		boardFeatures[0] = 1;
 		/*
@@ -269,26 +298,21 @@ public class JoshuaWOPR implements IPlayer {
 	}
 
 	// function to get the features out of the counters in getBoardFeatures()
-	private int[] addToFeatures(int[] features, int counterMine, int counterEnemy) {
+	protected int[] addToFeatures(int[] features, int counterMine, int counterEnemy) {
 		/*
 		 * counters always count the number of X & O in the row/aisle/... How does this
 		 * work? e.g. if I count 2 X and zero O I add a 1 to feature x1 & x2 This is
 		 * because taking away something from x1 (when adding a X into the board) skews
 		 * the board score
 		 */
-		// features for me
+
 		if (counterEnemy == 0 && counterMine != 0) {
-			while (counterMine > 0) {
-				features[counterMine]++;
-				counterMine--;
-			}
-		} 
-		// features for enemy else if
+			features[counterMine]++;
+		}
+		// features for enemy
 		else if (counterMine == 0 && counterEnemy != 0) {
-			while (counterEnemy > 0) {
-				features[counterEnemy + 5]++;
-				counterEnemy--;
-			}
+			features[counterEnemy + 5]++;
+
 		}
 
 		return features;
@@ -296,7 +320,7 @@ public class JoshuaWOPR implements IPlayer {
 
 	// train our learned function, during the game trainValue is the prev value and
 	// boardValue the current
-	public void updateWeights(float boardValue, float trainValue, int[] boardFeatures) {
+	protected void updateWeights(float boardValue, float trainValue, int[] boardFeatures) {
 		float error = trainValue - boardValue;
 		for (int i = 0; i < NUM_FEATURES; i++) {
 			Weights[i] += LEARN_RATE * boardFeatures[i] * error;
@@ -307,39 +331,39 @@ public class JoshuaWOPR implements IPlayer {
 		if (board.getWinner() == null) {
 			// draw
 			updateWeights(getBoardValue(board), 0, getBoardFeatures(board));
+			writeToFile(MyFileWinLoose, "1");
 		} else if (board.getWinner() == this) {
 			// win
-			updateWeights(getBoardValue(board), 100, getBoardFeatures(board));
+			updateWeights(getBoardValue(board), 200, getBoardFeatures(board));
+			writeToFile(MyFileWinLoose, "1");
 		} else {
 			// loss
-			updateWeights(getBoardValue(board), -100, getBoardFeatures(board));
+			updateWeights(getBoardValue(board), -200, getBoardFeatures(board));
+			writeToFile(MyFileWinLoose, "0");
 		}
 
-		System.out.print("W = { ");
+		String text = "W = { ";
+
 		for (int i = 0; i < Weights.length; i++) {
 			if (i + 1 == Weights.length)
-				System.out.print(Weights[i] + " }");
+				text += Weights[i] + " }";
 			else
-				System.out.print(Weights[i] + ", ");
+				text += Weights[i] + ", ";
 		}
-		int[] features = getBoardFeatures(board);
-		System.out.println();
-		System.out.print("F = { ");
-		for (int i = 0; i < features.length; i++) {
-			if (i + 1 == features.length)
-				System.out.print(features[i] + " }");
-			else
-				System.out.print(features[i] + ", ");
-		}
-		System.out.println();
+		writeToFile(MyFileWeights, text);
 
-		/*
-		 * PrevBoardFeatures = getBoardFeatures(board); for (int i = 0; i <
-		 * PrevBoardFeatures.length; i++) {
-		 * System.out.print("F"+i+"="+PrevBoardFeatures[i] + " | "); }
-		 * System.out.println();
-		 */
+
 		return;
+	}
+
+	public void writeToFile(File file, String text) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+			writer.write(text + '\n');
+			writer.close();
+		} catch (IOException e) {
+
+		}
 	}
 
 }
