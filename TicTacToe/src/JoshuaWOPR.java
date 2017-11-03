@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
  */
 public class JoshuaWOPR implements IPlayer {
 
-	private static final float LEARN_RATE = 0.0000001f;
+	private static final float LEARN_RATE = 0.00001f;
 	private static final int NUM_FEATURES = 11;
 	protected float[] Weights;
 	private float PrevBoardValue;
