@@ -40,7 +40,7 @@ public class JoshuaWOPR implements IPlayer {
 
 		PrevBoardFeatures = new int[NUM_FEATURES];
 		PrevBoardValue = 0f;
-		Weights = new float[NUM_FEATURES];
+		//Weights = new float[NUM_FEATURES];
 		Weights = new float[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	}
 
@@ -109,17 +109,19 @@ public class JoshuaWOPR implements IPlayer {
 		int[] boardFeatures = new int[NUM_FEATURES];
 		boardFeatures[0] = 1;
 		/*
-		 * x0 = 1 X = my player, O = enemy player x1 = rows/columns/aisles/diagonals
-		 * containing at least 1 X and 0 O x2 = rows/columns/aisles/diagonals containing
-		 * at least 2 X and 0 O x3 = rows/columns/aisles/diagonals containing at least 3
-		 * X and 0 O x4 = rows/columns/aisles/diagonals containing at least 4 X and 0 O
+		 * x0 = 1
+		 * X = my player, O = enemy player
+		 * x1 = rows/columns/aisles/diagonals containing at least 1 X and 0 O
+		 * x2 = rows/columns/aisles/diagonals containing at least 2 X and 0 O
+		 * x3 = rows/columns/aisles/diagonals containing at least 3 X and 0 O
+		 * x4 = rows/columns/aisles/diagonals containing at least 4 X and 0 O
 		 * x5 = rows/columns/aisles/diagonals containing at least 5 X and 0 O
 		 * 
-		 * x6 = rows/columns/aisles/diagonals containing at least 1 O and 0 X x7 =
-		 * rows/columns/aisles/diagonals containing at least 2 O and 0 X x8 =
-		 * rows/columns/aisles/diagonals containing at least 3 O and 0 X x9 =
-		 * rows/columns/aisles/diagonals containing at least 4 O and 0 X x10 =
-		 * rows/columns/aisles/diagonals containing at least 5 O and 0 X
+		 * x6 = rows/columns/aisles/diagonals containing at least 1 O and 0 X
+		 * x7 = rows/columns/aisles/diagonals containing at least 2 O and 0 X
+		 * x8 = rows/columns/aisles/diagonals containing at least 3 O and 0 X
+		 * x9 = rows/columns/aisles/diagonals containing at least 4 O and 0 X
+		 * x10 = rows/columns/aisles/diagonals containing at least 5 O and 0 X
 		 */
 
 		// check rows/columns/aisles
