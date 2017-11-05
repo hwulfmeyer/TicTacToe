@@ -1,31 +1,51 @@
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IBoard;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IPlayer;
 import de.ovgu.dke.teaching.ml.tictactoe.api.IllegalMoveException;
 import de.ovgu.dke.teaching.ml.tictactoe.game.Move;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 /**
  * @author Hans-Martin Wulfmeyer, Dimtrii Zyrianov
  */
-public class JoshuaWOPR implements IPlayer {
+public class JoshuaTEST implements IPlayer {
 
 	private static final float LEARN_RATE = 0.0001f;
 	private static final int NUM_FEATURES = 11;
 	protected float[] Weights;
 	private float PrevBoardValue;
 	private int[] PrevBoardFeatures;
+	File MyFileWeights;
+	File MyFileWinLoose;
 
 	// initialize the variables we need
-	public JoshuaWOPR() {
+	public JoshuaTEST() {
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		MyFileWeights = new File("C://ttt/" + timeStamp + "_weights.txt");
+		MyFileWinLoose = new File("C://ttt/" + timeStamp + "_winloose.txt");
+
+		try {
+			MyFileWeights.createNewFile();
+			MyFileWinLoose.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		PrevBoardFeatures = new int[NUM_FEATURES];
 		PrevBoardValue = 0f;
-		// Weights = new float[NUM_FEATURES];
+		//Weights = new float[NUM_FEATURES];
 		Weights = new float[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	}
 
 	public String getName() {
-		return "Joshua/WOPR";
+		return "JoshuaTEST";
 	}
 
 	// returns the move to make in this current play
@@ -87,7 +107,7 @@ public class JoshuaWOPR implements IPlayer {
 	// calculate the values for our board features
 	protected int[] getBoardFeatures(IBoard board) {
 		int[] boardFeatures = new int[NUM_FEATURES];
-		boardFeatures[0] = 1;		
+		boardFeatures[0] = 1;
 		/*
 		 * x0 = 1
 		 * X = my player, O = enemy player
@@ -281,7 +301,13 @@ public class JoshuaWOPR implements IPlayer {
 
 	// function to get the features out of the counters in getBoardFeatures()
 	protected int[] addToFeatures(int[] features, int counterMine, int counterEnemy) {
-		// counters always count the number of X & O in the row/aisle/...
+		/*
+		 * counters always count the number of X & O in the row/aisle/... How does this
+		 * work? e.g. if I count 2 X and zero O I add a 1 to feature x1 & x2 This is
+		 * because taking away something from x1 (when adding a X into the board) skews
+		 * the board score
+		 */
+
 		if (counterEnemy == 0 && counterMine != 0) {
 			features[counterMine]++;
 		}
@@ -294,9 +320,8 @@ public class JoshuaWOPR implements IPlayer {
 		return features;
 	}
 
-	// train our learned function, during the game trainValue is the current value
-	// and
-	// boardValue/boardFeatures from the prev board state
+	// train our learned function, during the game trainValue is the prev value and
+	// boardValue the current
 	protected void updateWeights(float boardValue, float trainValue, int[] boardFeatures) {
 		float error = trainValue - boardValue;
 		for (int i = 0; i < NUM_FEATURES; i++) {
@@ -308,14 +333,39 @@ public class JoshuaWOPR implements IPlayer {
 		if (board.getWinner() == null) {
 			// draw
 			updateWeights(getBoardValue(board), 0, getBoardFeatures(board));
+			writeToFile(MyFileWinLoose, "1");
 		} else if (board.getWinner() == this) {
 			// win
 			updateWeights(getBoardValue(board), 200, getBoardFeatures(board));
+			writeToFile(MyFileWinLoose, "1");
 		} else {
 			// loss
 			updateWeights(getBoardValue(board), -200, getBoardFeatures(board));
+			writeToFile(MyFileWinLoose, "0");
 		}
+
+		String text = "W = { ";
+
+		for (int i = 0; i < Weights.length; i++) {
+			if (i + 1 == Weights.length)
+				text += Weights[i] + " }";
+			else
+				text += Weights[i] + ", ";
+		}
+		writeToFile(MyFileWeights, text);
+
+
 		return;
+	}
+
+	public void writeToFile(File file, String text) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+			writer.write(text + '\n');
+			writer.close();
+		} catch (IOException e) {
+
+		}
 	}
 
 }

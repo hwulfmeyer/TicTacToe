@@ -148,7 +148,7 @@ public class NeuralPlayer implements IPlayer {
 		float error = (PrevBoardNetOutputs[HIDDEN_LAYERS][0] - curBoardValue) * actFuncDerivative(curBoardValue);
 		newNeuronWeights[HIDDEN_LAYERS] = updateWeights(PrevBoardNetOutputs[HIDDEN_LAYERS-1], NeuronWeights[HIDDEN_LAYERS], error);
 		//calculate error/weights for all hidden layers with outputs into hidden layers
-		for (int k = 1; k < HIDDEN_LAYERS; k++) {
+		for (int k = HIDDEN_LAYERS-1; k >= 0; k--) {
 			for(int i=0;i<HIDDEN_NEURONS;i++) {
 				//TODO
 			}
